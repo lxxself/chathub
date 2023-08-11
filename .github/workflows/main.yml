@@ -14,20 +14,7 @@ jobs:
     - run: yarn install
     - run: yarn build
     - run: cd dist && zip -r chathub.zip .
-    - id: release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.sha }}
-        release_name: ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }} 
-        asset_path: ./dist/chathub.zip
-        asset_name: chathub.zip
-        asset_content_type: application/zip
+        files: dist/chathub.zip
