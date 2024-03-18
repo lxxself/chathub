@@ -3,13 +3,15 @@ name: Release Workflow
 permissions:
   contents: write
 
-on:
-  push:
-    tags:
-      - 'v*.*.*'
+# on:
+#   push:
+#     tags:
+#       - 'v*.*.*'
+on: 
+  workflow_dispatch:
 
-env:
-  VITE_PLAUSIBLE_API_HOST: ${{ vars.VITE_PLAUSIBLE_API_HOST }}
+# env:
+#   VITE_PLAUSIBLE_API_HOST: ${{ vars.VITE_PLAUSIBLE_API_HOST }}
 
 jobs:
   build:
