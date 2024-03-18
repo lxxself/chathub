@@ -8,11 +8,15 @@ function extractFromHTML(variableName: string, html: string) {
 }
 
 export async function fetchRequestParams() {
-  const html = await ofetch('https://bard.google.com/faq', {
-    cache: 'reload',
-  })
+  const html = await ofetch('https://bard.google.com/', { responseType: 'text' })
+
   const atValue = extractFromHTML('SNlM0e', html)
   const blValue = extractFromHTML('cfb2h', html)
+
+  if (!atValue) {
+    throw new ChatError('There is no logged-in Google account in this browser', ErrorCode.BARD_UNAUTHORIZED)
+  }
+
   return { atValue, blValue }
 }
 
@@ -20,7 +24,7 @@ export function parseBardResponse(resp: string) {
   const data = JSON.parse(resp.split('\n')[3])
   const payload = JSON.parse(data[0][2])
   if (!payload) {
-    throw new ChatError("Bard isn't currently supported in your country", ErrorCode.BARD_EMPTY_RESPONSE)
+    throw new ChatError('Failed to load bard response', ErrorCode.BARD_EMPTY_RESPONSE)
   }
   console.debug('bard response payload', payload)
 

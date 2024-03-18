@@ -15,9 +15,9 @@ import { showPremiumModalAtom } from '~app/state'
 import { BotId } from '../bots'
 import ConversationPanel from '../components/Chat/ConversationPanel'
 
-const DEFAULT_BOTS: BotId[] = ['chatgpt', 'claude', 'bard', 'bing', 'llama', 'pi']
+const DEFAULT_BOTS: BotId[] = Object.keys(CHATBOTS).slice(0, 6) as BotId[]
 
-const layoutAtom = atomWithStorage<Layout>('multiPanelLayout', 2, undefined, { unstable_getOnInit: true })
+const layoutAtom = atomWithStorage<Layout>('multiPanelLayout', 2, undefined, { getOnInit: true })
 const twoPanelBotsAtom = atomWithStorage<BotId[]>('multiPanelBots:2', DEFAULT_BOTS.slice(0, 2))
 const threePanelBotsAtom = atomWithStorage<BotId[]>('multiPanelBots:3', DEFAULT_BOTS.slice(0, 3))
 const fourPanelBotsAtom = atomWithStorage<BotId[]>('multiPanelBots:4', DEFAULT_BOTS.slice(0, 4))
@@ -178,9 +178,10 @@ const SixBotChatPanel = () => {
 }
 
 const ImageInputPanel = () => {
-  const chat1 = useChat('bard')
+  const chat1 = useChat('chatgpt')
   const chat2 = useChat('bing')
-  const chats = useMemo(() => [chat1, chat2], [chat1, chat2])
+  const chat3 = useChat('bard')
+  const chats = useMemo(() => [chat1, chat2, chat3], [chat1, chat2, chat3])
   return <GeneralChatPanel chats={chats} supportImageInput={true} />
 }
 

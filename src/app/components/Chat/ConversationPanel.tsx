@@ -13,12 +13,11 @@ import { BotId, BotInstance } from '../../bots'
 import Button from '../Button'
 import HistoryDialog from '../History/Dialog'
 import ShareDialog from '../Share/Dialog'
-import SwitchBotDropdown from '../SwitchBotDropdown'
 import Tooltip from '../Tooltip'
 import ChatMessageInput from './ChatMessageInput'
 import ChatMessageList from './ChatMessageList'
-import WebAccessCheckbox from './WebAccessCheckbox'
 import ChatbotName from './ChatbotName'
+import WebAccessCheckbox from './WebAccessCheckbox'
 
 interface Props {
   botId: BotId
@@ -94,7 +93,7 @@ const ConversationPanel: FC<Props> = (props) => {
           <div className="flex flex-row items-center">
             <motion.img
               src={botInfo.avatar}
-              className="w-[18px] h-[18px] object-contain rounded-full mr-2"
+              className="w-[18px] h-[18px] object-contain rounded-sm mr-2"
               whileHover={{ rotate: 180 }}
             />
             <ChatbotName
@@ -146,7 +145,7 @@ const ConversationPanel: FC<Props> = (props) => {
             placeholder={mode === 'compact' ? '' : undefined}
             onSubmit={onSubmit}
             autoFocus={mode === 'full'}
-            supportImageInput={mode === 'full' && (props.botId === 'bard' || props.botId === 'bing')}
+            supportImageInput={mode === 'full' && props.bot.supportsImageInput}
             actionButton={inputActionButton}
           />
         </div>

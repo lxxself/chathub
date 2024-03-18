@@ -9,15 +9,15 @@ import feedbackIcon from '~/assets/icons/feedback.svg'
 import githubIcon from '~/assets/icons/github.svg'
 import settingIcon from '~/assets/icons/setting.svg'
 import themeIcon from '~/assets/icons/theme.svg'
-import logo from '~/assets/logo.svg'
 import minimalLogo from '~/assets/minimal-logo.svg'
+import logo from '~/assets/santa-logo.png'
 import { cx } from '~/utils'
 import { useEnabledBots } from '~app/hooks/use-enabled-bots'
-import { showDiscountModalAtom, sidebarCollapsedAtom } from '~app/state'
+import { releaseNotesAtom, showDiscountModalAtom, sidebarCollapsedAtom } from '~app/state'
 import { getPremiumActivation } from '~services/premium'
+import { checkReleaseNotes } from '~services/release-notes'
 import * as api from '~services/server-api'
 import { getAppOpenTimes, getPremiumModalOpenTimes } from '~services/storage/open-times'
-import CommandBar from '../CommandBar'
 import GuideModal from '../GuideModal'
 import ThemeSettingModal from '../ThemeSettingModal'
 import Tooltip from '../Tooltip'
@@ -41,17 +41,25 @@ function Sidebar() {
   const [themeSettingModalOpen, setThemeSettingModalOpen] = useState(false)
   const enabledBots = useEnabledBots()
   const setShowDiscountModal = useSetAtom(showDiscountModalAtom)
+  const setReleaseNotes = useSetAtom(releaseNotesAtom)
 
   useEffect(() => {
-    Promise.all([getAppOpenTimes(), getPremiumModalOpenTimes()]).then(async ([appOpenTimes, premiumModalOpenTimes]) => {
-      if (getPremiumActivation()) {
-        return
-      }
-      const { show } = await api.checkDiscount({ appOpenTimes, premiumModalOpenTimes })
-      if (show) {
-        setShowDiscountModal(true)
-      }
-    })
+    Promise.all([getAppOpenTimes(), getPremiumModalOpenTimes(), checkReleaseNotes()]).then(
+      async ([appOpenTimes, premiumModalOpenTimes, releaseNotes]) => {
+        if (!getPremiumActivation()) {
+          const { show, campaign } = await api.checkDiscount({ appOpenTimes, premiumModalOpenTimes })
+          if (show) {
+            setShowDiscountModal(true)
+            return
+          }
+          if (campaign) {
+            setShowDiscountModal(campaign)
+            return
+          }
+        }
+        setReleaseNotes(releaseNotes)
+      },
+    )
   }, [])
 
   return (
@@ -61,16 +69,16 @@ function Sidebar() {
         collapsed ? 'items-center px-[15px]' : 'w-[230px] px-4',
       )}
     >
-      <motion.img
-        src={collapseIcon}
-        className={cx('w-6 h-6 cursor-pointer my-5', !collapsed && 'self-end')}
-        animate={{
-          rotate: collapsed ? 180 : 0,
-        }}
-        onClick={() => setCollapsed((c) => !c)}
-      />
-      {collapsed ? <img src={minimalLogo} className="w-[30px]" /> : <img src={logo} className="w-[79px]" />}
-      <div className="flex flex-col gap-[13px] mt-12 overflow-y-auto scrollbar-none">
+      <div className={cx('flex mt-8 gap-3 items-center', collapsed ? 'flex-col-reverse' : 'flex-row justify-between')}>
+        {collapsed ? <img src={minimalLogo} className="w-[30px]" /> : <img src={logo} className="w-[100px] ml-2" />}
+        <motion.img
+          src={collapseIcon}
+          className={cx('w-6 h-6 cursor-pointer')}
+          animate={{ rotate: collapsed ? 180 : 0 }}
+          onClick={() => setCollapsed((c) => !c)}
+        />
+      </div>
+      <div className="flex flex-col gap-[13px] mt-10 overflow-y-auto scrollbar-none">
         <NavLink to="/" text={'All-In-One'} icon={allInOneIcon} iconOnly={collapsed} />
         {enabledBots.map(({ botId, bot }) => (
           <NavLink
@@ -119,7 +127,6 @@ function Sidebar() {
           </Tooltip>
         </div>
       </div>
-      <CommandBar />
       <GuideModal />
       <ThemeSettingModal open={themeSettingModalOpen} onClose={() => setThemeSettingModalOpen(false)} />
     </motion.aside>

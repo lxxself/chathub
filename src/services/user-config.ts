@@ -34,9 +34,9 @@ export enum PoeClaudeModel {
 }
 
 export enum ClaudeMode {
-  Poe = 'poe',
-  API = 'api',
   Webapp = 'webapp',
+  API = 'api',
+  Poe = 'poe',
   OpenRouter = 'openrouter',
 }
 
@@ -48,6 +48,11 @@ export enum ClaudeAPIModel {
 export enum OpenRouterClaudeModel {
   'claude-2' = 'claude-2',
   'claude-instant-v1' = 'claude-instant-v1',
+}
+
+export enum PerplexityMode {
+  Webapp = 'webapp',
+  API = 'api',
 }
 
 const userConfigWithDefaultValue = {
@@ -67,13 +72,16 @@ const userConfigWithDefaultValue = {
   azureOpenAIApiDeploymentName: '',
   enabledBots: Object.keys(CHATBOTS).slice(0, 8) as BotId[],
   claudeApiKey: '',
-  claudeMode: ClaudeMode.Poe,
+  claudeMode: ClaudeMode.Webapp,
   claudeApiModel: ClaudeAPIModel['claude-2'],
   chatgptWebAccess: false,
   claudeWebAccess: false,
   openrouterOpenAIModel: CHATGPT_API_MODELS[0] as (typeof CHATGPT_API_MODELS)[number],
   openrouterClaudeModel: OpenRouterClaudeModel['claude-2'],
   openrouterApiKey: '',
+  perplexityMode: PerplexityMode.Webapp,
+  perplexityApiKey: '',
+  geminiApiKey: '',
 }
 
 export type UserConfig = typeof userConfigWithDefaultValue
@@ -91,6 +99,11 @@ export async function getUserConfig(): Promise<UserConfig> {
     result.chatgptWebappModelName = ChatGPTWebModel['GPT-3.5']
   } else if (result.chatgptWebappModelName === 'gpt-4-mobile') {
     result.chatgptWebappModelName = ChatGPTWebModel['GPT-4']
+  }
+  if (result.chatgptApiModel === 'gpt-3.5-turbo-16k') {
+    result.chatgptApiModel = 'gpt-3.5-turbo'
+  } else if (result.chatgptApiModel === 'gpt-4-32k') {
+    result.chatgptApiModel = 'gpt-4'
   }
   if (
     result.claudeApiModel !== ClaudeAPIModel['claude-2'] ||

@@ -16,34 +16,29 @@ const OPTIONS_SETS = [
   'responsible_ai_policy_235',
   'enablemm',
   'dv3sugg',
-  'iyxapbing',
-  'iycapbing',
-  'galileo',
-  'saharagenconv5',
-  'log2sph',
-  'savememfilter',
-  'uprofgen',
-  'uprofupd',
-  'uprofupdasy',
-  'vidsumsnip',
+  'autosave',
+  'glfluxv15',
+  'clgalileo',
+  'clgalileonsr',
+  'mtreasoncls3',
+  'sahararespv2',
+  'gptvprvc',
+  'fluxprod',
+  'revimglnk',
+  'revimgsrc1',
 ]
 
 const SLICE_IDS = [
-  'tnaenableux',
-  'adssqovr',
-  'tnaenable',
-  'arankc_1_9_3',
-  'rankcf',
-  '0731ziv2s0',
-  '926buffall',
-  'inosanewsmob',
-  'wrapnoins',
-  'prechr',
-  'sydtransl',
-  '806log2sph',
-  '927uprofasy',
-  '919vidsnip',
-  '829suggtrims0',
+  '0712newass0',
+  '0212boptpsc',
+  'plgbd2c',
+  '1113gldcl1s1',
+  '1201reason',
+  '124multi2ts0',
+  'cacdupereccf',
+  'cacmuidarb',
+  'cacfrwebt2cf',
+  'sswebtop2cf',
 ]
 
 export class BingWebBot extends AbstractBot {
@@ -51,12 +46,17 @@ export class BingWebBot extends AbstractBot {
 
   private buildChatRequest(conversation: ConversationInfo, message: string, imageUrl?: string) {
     const requestId = uuid()
-    const optionsSets = OPTIONS_SETS
+
+    const optionsSets = [...OPTIONS_SETS]
+    let tone = 'Balanced'
     if (conversation.conversationStyle === BingConversationStyle.Precise) {
       optionsSets.push('h3precise')
+      tone = 'Precise'
     } else if (conversation.conversationStyle === BingConversationStyle.Creative) {
       optionsSets.push('h3imaginative')
+      tone = 'Creative'
     }
+
     return {
       arguments: [
         {
@@ -75,6 +75,7 @@ export class BingWebBot extends AbstractBot {
           verbosity: 'verbose',
           scenario: 'SERP',
           plugins: [],
+          conversationHistoryOptionsSets: ['autosave', 'savemem', 'uprofupd', 'uprofgen'],
           isStartOfSession: conversation.invocationId === 0,
           message: {
             timestamp: new Date().toISOString(),
@@ -90,6 +91,7 @@ export class BingWebBot extends AbstractBot {
           conversationId: conversation.conversationId,
           conversationSignature: conversation.conversationSignature,
           participant: { id: conversation.clientId },
+          tone,
         },
       ],
       invocationId: conversation.invocationId.toString(),
@@ -219,6 +221,10 @@ export class BingWebBot extends AbstractBot {
 
   resetConversation() {
     this.conversationContext = undefined
+  }
+
+  get supportsImageInput() {
+    return true
   }
 
   private async uploadImage(image: File) {
